@@ -1,10 +1,10 @@
 defaults:
   - model: baseline
-  - writer: wandb
+  - writer: cometml
   - metrics: example
-  - datasets: example
-  - dataloader: example
-  - transforms: example_only_instance
+  - datasets: overfit
+  - dataloader: basic_dataloader
+  - transforms: basic
   - _self_
 optimizer:
   _target_: torch.optim.AdamW
@@ -23,7 +23,7 @@ text_encoder:
 trainer:
   log_step: 50
   n_epochs: 50
-  epoch_len: 200
+  epoch_len: 100
   device_tensors: ["spectrogram", "text_encoded"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: auto # device name or "auto"
