@@ -5,8 +5,10 @@ from torch import Tensor, nn
 class Gain(nn.Module):
     def __init__(self, *args, **kwargs):
         super().__init__()
-        self._aug = torch_audiomentations.Gain(*args, **kwargs)
+        self._aug = torch_audiomentations.Gain(*args, output_type="tensor", **kwargs)
 
-    def __call__(self, data: Tensor):
-        x = data.unsqueeze(1)
-        return self._aug(x).squeeze(1)
+    def forward(self, waveform: Tensor) -> Tensor:
+        # waveform: [1, T]
+        waveform = waveform.unsqueeze(0)
+        result = self._aug(waveform)
+        return result.squeeze(0)
