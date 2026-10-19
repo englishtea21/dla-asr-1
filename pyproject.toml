@@ -41,6 +41,7 @@ dependencies = [
     "soundfile>=0.14.0",
     "comet-ml>=3.58.8",
     "torchcodec[cpu]>=0.17.0",
+    "sentencepiece>=0.2.2",
 ]
 
 [[tool.uv.index]]
