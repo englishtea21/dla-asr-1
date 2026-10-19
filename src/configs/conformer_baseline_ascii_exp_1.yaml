@@ -23,9 +23,9 @@ text_encoder:
 trainer:
   profile: True
   profile_steps: 100
-  log_step: 110
+  log_step: 220
   n_epochs: 40
-  epoch_len: 440
+  epoch_len: 880
   device_tensors: ["spectrogram", "text_encoded"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: auto # device name or "auto"
