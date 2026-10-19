@@ -229,7 +229,7 @@ class BaseTrainer:
                 self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
                 self.logger.debug(
                     "Train Epoch: {} {} Loss: {:.6f}".format(
-                        epoch, self._progress(batch_idx), batch["loss"].item()
+                        epoch, self._progress(batch_idx), batch["loss"].detach()
                     )
                 )
                 self.writer.add_scalar(
@@ -406,7 +406,7 @@ class BaseTrainer:
             torch.stack([torch.norm(p.grad.detach(), norm_type) for p in parameters]),
             norm_type,
         )
-        return total_norm.item()
+        return total_norm.detach()
 
     def _progress(self, batch_idx):
         """

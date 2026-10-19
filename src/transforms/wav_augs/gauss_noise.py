@@ -18,8 +18,8 @@ class AddGaussNoise(nn.Module):
 
         noise = torch.randn_like(waveform)
         snr_db = torch.empty(1, device=waveform.device).uniform_(
-            self.snr_db_range[0].item(),
-            self.snr_db_range[1].item(),
+            self.snr_db_range[0].detach(),
+            self.snr_db_range[1].detach(),
         )
 
         signal_power = waveform.pow(2).mean().clamp_min(1e-8)

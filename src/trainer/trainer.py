@@ -55,7 +55,7 @@ class Trainer(BaseTrainer):
 
         # update metrics for each loss (in case of multiple losses)
         for loss_name in self.config.writer.loss_names:
-            metrics.update(loss_name, batch[loss_name].item())
+            metrics.update(loss_name, batch[loss_name].detach())
 
         for met in metric_funcs:
             metrics.update(met.name, met(**batch))
@@ -98,7 +98,7 @@ class Trainer(BaseTrainer):
             wav = wav[
                 :,
                 : int(
-                    audio_length[0].item()
+                    audio_length[0].detach()
                     if hasattr(audio_length[0], "item")
                     else audio_length[0]
                 ),
