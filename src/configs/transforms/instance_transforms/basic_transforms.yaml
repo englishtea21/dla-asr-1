@@ -16,16 +16,16 @@ train:
         max_steps: 2
         prob: 0.0
       - _target_: src.transforms.wav_augs.Gain
-        min_gain_in_db: -6.0
-        max_gain_in_db: 6.0
-        p: 0.1
+        min_gain_in_db: -8.0
+        max_gain_in_db: 8.0
+        p: 0.3
       - _target_: src.transforms.wav_augs.AddGaussNoise
-        prob: 0.1
-        snr_db_range: [25.0, 35.0]
+        prob: 0.2
+        snr_db_range: [20.0, 35.0]
       - _target_: src.transforms.wav_augs.ImpulseResponseAugmentation
         sample_rate: 16000
         decay_range: [0, 10]
-        prob: 0.1
+        prob: 0.0
 inference:
   get_spectrogram:
     _target_: torch.nn.Sequential
