@@ -1,4 +1,5 @@
 from abc import abstractmethod
+import gc
 
 import torch
 from torch.profiler import ProfilerActivity, profile
@@ -172,6 +173,10 @@ class BaseTrainer:
         for epoch in range(self.start_epoch, self.epochs + 1):
             self._last_epoch = epoch
             result = self._train_epoch(epoch)
+
+            gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
             # save logged information into logs dict
             logs = {"epoch": epoch}
