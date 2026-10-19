@@ -2,7 +2,7 @@ defaults:
   - model: baseline
   - writer: cometml
   - metrics: example
-  - datasets: overfit
+  - datasets: onebatchtest
   - dataloader: basic_dataloader
   - transforms: basic
   - _self_

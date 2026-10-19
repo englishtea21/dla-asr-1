@@ -5,6 +5,8 @@ train:
   max_text_length: 200
   limit: 2
   instance_transforms: ${transforms.instance_transforms.train}
+  take: 2
+  use_hf: true
 # we filter partitions in one batch test to check the pipeline
 # do not filter test dataset, you want to evaluate on the whole dataset
 val:
@@ -14,3 +16,15 @@ val:
   max_text_length: 200
   limit: 2
   instance_transforms: ${transforms.instance_transforms.inference}
+  take: 2
+  use_hf: true
+
+test:
+  _target_: src.datasets.LibrispeechDataset
+  part: "dev-clean"
+  max_audio_length: 20.0
+  max_text_length: 200
+  instance_transforms: ${transforms.instance_transforms.inference}
+  limit: 2
+  take: 2
+  use_hf: true
