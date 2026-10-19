@@ -8,11 +8,11 @@ defaults:
   - _self_
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 5e-5
+  lr: 8e-5
 lr_scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
-  max_lr: 5e-4
-  pct_start: 0.1
+  max_lr: 8e-4
+  pct_start: 0.05
   steps_per_epoch: ${trainer.epoch_len}
   epochs: ${trainer.n_epochs}
   anneal_strategy: cos
@@ -23,10 +23,10 @@ text_encoder:
 trainer:
   profile: False
   profile_steps: 100
-  log_step_text: 440
-  log_step_media: 880
+  log_step_text: 220
+  log_step_media: 440
   n_epochs: 80
-  epoch_len: 880
+  epoch_len: 440
   device_tensors: ["spectrogram", "text_encoded"] # which tensors should be on device (ex. GPU)
   resume_from: null # null or path to the checkpoint dir with *.pth and config.yaml
   device: auto # device name or "auto"
