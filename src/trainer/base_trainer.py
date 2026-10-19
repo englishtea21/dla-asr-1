@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
 import torch
+from torch.profiler import ProfilerActivity, profile
 from numpy import inf
 from torch.nn.utils import clip_grad_norm_
 from tqdm.auto import tqdm
@@ -61,6 +62,8 @@ class BaseTrainer:
 
         self.config = config
         self.cfg_trainer = self.config.trainer
+        self.profile = self.cfg_trainer.get("profile", False)
+        self.profile_steps = self.cfg_trainer.get("profile_steps", 20)
 
         self.device = device
         self.skip_oom = skip_oom
@@ -206,6 +209,15 @@ class BaseTrainer:
         self.train_metrics.reset()
         self.writer.set_step((epoch - 1) * self.epoch_len)
         self.writer.add_scalar("epoch", epoch)
+
+        profiler = None
+        if self.profile and epoch == self.start_epoch:
+            profiler = profile(
+                activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+                record_shapes=True,
+            )
+            profiler.start()
+
         for batch_idx, batch in enumerate(
             tqdm(self.train_dataloader, desc="train", total=self.epoch_len)
         ):
@@ -241,8 +253,23 @@ class BaseTrainer:
                 # because we are interested in recent train metrics
                 last_train_metrics = self.train_metrics.result()
                 self.train_metrics.reset()
+            if profiler is not None and batch_idx + 1 >= self.profile_steps:
+                profiler.stop()
+                trace_path = self.checkpoint_dir / "profile_trace.json"
+                profiler.export_chrome_trace(str(trace_path))
+                self.logger.info(f"Profile trace saved to {trace_path}")
+                self.profile = False
+                profiler = None
+
             if batch_idx + 1 >= self.epoch_len:
                 break
+
+        if profiler is not None:
+            profiler.stop()
+            trace_path = self.checkpoint_dir / "profile_trace.json"
+            profiler.export_chrome_trace(str(trace_path))
+            self.logger.info(f"Profile trace saved to {trace_path}")
+            self.profile = False
 
         logs = last_train_metrics
 

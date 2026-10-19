@@ -38,6 +38,8 @@ class MetricTracker:
         """
         # if self.writer is not None:
         #     self.writer.add_scalar(key, value)
+        if hasattr(value, "item"):
+            value = value.item()
         self._data.loc[key, "total"] += value * n
         self._data.loc[key, "counts"] += n
         self._data.loc[key, "average"] = self._data.total[key] / self._data.counts[key]

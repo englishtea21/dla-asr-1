@@ -1,7 +1,8 @@
 train:
   _target_: src.datasets.LibrispeechDataset
   part: "train-clean-100"
-  take: 100
+  take: 1000
+  limit: 1000
   use_hf: true
   instance_transforms: ${transforms.instance_transforms.train}
 
@@ -9,12 +10,14 @@ val:
   _target_: src.datasets.LibrispeechDataset
   part: "dev-clean"
   use_hf: true
-  take: 100
+  take: 1000
+  limit: 1000
   instance_transforms: ${transforms.instance_transforms.inference}
 
 test:
   _target_: src.datasets.LibrispeechDataset
   part: "test-clean"
   use_hf: true
-  take: 100
+  take: 1000
+  limit: 1000
   instance_transforms: ${transforms.instance_transforms.inference}
