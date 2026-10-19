@@ -74,6 +74,7 @@ class BaseTrainer:
         self.lr_scheduler = lr_scheduler
         self.text_encoder = text_encoder
         self.batch_transforms = batch_transforms
+        self._current_part = "val"
 
         # define dataloaders
         self.train_dataloader = dataloaders["train"]
@@ -278,6 +279,7 @@ class BaseTrainer:
                 )
             self.writer.set_step(epoch * self.epoch_len, part)
             self._log_scalars(self.evaluation_metrics)
+            self._current_part = part
             self._log_batch(
                 batch_idx, batch, part
             )  # log only the last batch during inference

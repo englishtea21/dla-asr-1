@@ -215,8 +215,12 @@ class WandBWriter:
             table_name (str): name of the table to use in the tracker.
             table (DataFrame): table content.
         """
+        if "epoch" in table_name:
+            key = table_name
+        else:
+            key = self._object_name(table_name)
         self.wandb.log(
-            {self._object_name(table_name): self.wandb.Table(dataframe=table)},
+            {key: self.wandb.Table(dataframe=table)},
             step=self.step,
         )
 

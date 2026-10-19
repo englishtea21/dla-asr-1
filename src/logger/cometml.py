@@ -241,9 +241,13 @@ class CometMLWriter:
             table (DataFrame): table content.
         """
         self.exp.set_step(self.step)
-        # log_table does not support step directly
+        
+        if "epoch" in table_name:
+            filename = table_name if table_name.endswith(".csv") else table_name + ".csv"
+        else:
+            filename = self._object_name(table_name) + ".csv"
         self.exp.log_table(
-            filename=self._object_name(table_name) + ".csv",
+            filename=filename,
             tabular_data=table,
             headers=True,
         )

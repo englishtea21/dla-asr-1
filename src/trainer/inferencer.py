@@ -1,7 +1,11 @@
+import json
+
 import torch
 from tqdm.auto import tqdm
 
 from src.metrics.tracker import MetricTracker
+from src.metrics.utils import calc_cer, calc_wer
+
 from src.trainer.base_trainer import BaseTrainer
 
 
@@ -67,7 +71,6 @@ class Inferencer(BaseTrainer):
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items()}
 
         # path definition
-
         self.save_path = save_path
 
         # define metrics
@@ -133,29 +136,38 @@ class Inferencer(BaseTrainer):
             for met in self.metrics["inference"]:
                 metrics.update(met.name, met(**batch))
 
-        # Some saving logic. This is an example
-        # Use if you need to save predictions on disk
+        log_probs = batch["log_probs"].detach().cpu()
+        log_probs_length = batch["log_probs_length"].detach().cpu()
+        texts = batch["text"]
+        audio_paths = batch["audio_path"]
 
-        batch_size = batch["logits"].shape[0]
+        batch_size = log_probs.shape[0]
         current_id = batch_idx * batch_size
+        rows = []
 
         for i in range(batch_size):
-            # clone because of
-            # https://github.com/pytorch/pytorch/issues/1995
-            logits = batch["logits"][i].clone()
-            label = batch["labels"][i].clone()
-            pred_label = logits.argmax(dim=-1)
+            pred_ids = log_probs[i, : int(log_probs_length[i])].argmax(dim=-1).tolist()
+            pred_text = self.text_encoder.ctc_decode(pred_ids)
+            target_text = self.text_encoder.normalize_text(texts[i])
 
-            output_id = current_id + i
+            rows.append(
+                {
+                    "id": current_id + i,
+                    "audio_path": audio_paths[i],
+                    "target": target_text,
+                    "prediction": pred_text,
+                    "wer": calc_wer(target_text, pred_text),
+                    "cer": calc_cer(target_text, pred_text),
+                }
+            )
 
-            output = {
-                "pred_label": pred_label,
-                "label": label,
-            }
-
-            if self.save_path is not None:
-                # you can use safetensors or other lib here
-                torch.save(output, self.save_path / part / f"output_{output_id}.pth")
+        if self.save_path is not None:
+            out_dir = self.save_path / part
+            out_dir.mkdir(exist_ok=True, parents=True)
+            out_file = out_dir / "predictions.jsonl"
+            with out_file.open("a", encoding="utf-8") as f:
+                for row in rows:
+                    f.write(json.dumps(row, ensure_ascii=False) + "\n")
 
         return batch
 
@@ -178,6 +190,9 @@ class Inferencer(BaseTrainer):
         # create Save dir
         if self.save_path is not None:
             (self.save_path / part).mkdir(exist_ok=True, parents=True)
+            pred_file = self.save_path / part / "predictions.jsonl"
+            if pred_file.exists():
+                pred_file.unlink()
 
         with torch.no_grad():
             for batch_idx, batch in tqdm(

@@ -122,6 +122,10 @@ class Trainer(BaseTrainer):
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
         tuples = list(zip(argmax_texts, text, argmax_texts_raw, audio_path))
 
+        epoch = getattr(self, "_last_epoch", 0)
+        step = getattr(self.writer, "step", 0)
+        part = getattr(self, "_current_part", "val")
+
         rows = {}
         for pred, target, raw_pred, audio_path in tuples[:examples_to_log]:
             target = self.text_encoder.normalize_text(target)
@@ -129,12 +133,20 @@ class Trainer(BaseTrainer):
             cer = calc_cer(target, pred) * 100
 
             rows[Path(audio_path).name] = {
+                "epoch": epoch,
+                "step": step,
+                "part": part,
                 "target": target,
                 "raw prediction": raw_pred,
                 "predictions": pred,
                 "wer": wer,
                 "cer": cer,
             }
-        self.writer.add_table(
-            "predictions", pd.DataFrame.from_dict(rows, orient="index")
-        )
+
+        # порядок строк по имени файла
+        rows = dict(sorted(rows.items(), key=lambda kv: kv[0]))
+        df = pd.DataFrame.from_dict(rows, orient="index")
+
+        # уникальное имя файла на каждую эпоху
+        table_name = f"predictions_epoch{epoch:03d}_{part}"
+        self.writer.add_table(table_name, df)
