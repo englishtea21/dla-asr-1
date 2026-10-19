@@ -8,7 +8,7 @@ import jiwer
 
 def calc_cer(target_text, predicted_text) -> float:
     if len(target_text):
-        return editdistance.eval(target_text, predicted_text) / len(target_text) * 100
+        return editdistance.eval(target_text, predicted_text) / len(target_text)
     return 0.0
 
 
