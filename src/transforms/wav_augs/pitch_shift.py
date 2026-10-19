@@ -33,8 +33,10 @@ class RandomPitchShift(nn.Module):
         waveform = waveform.unsqueeze(0)
 
         transform = torchaudio.transforms.PitchShift(
-            sample_rate=self.sample_rate, n_steps=n_steps,
+            sample_rate=self.sample_rate,
+            n_steps=n_steps,
         ).to(device=waveform.device)
 
         result = transform(waveform)
-        return result.squeeze(0)
+        # чтобы аугментация не участвовала в графе градиентов.
+        return result.squeeze(0).detach()
