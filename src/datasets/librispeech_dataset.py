@@ -1,3 +1,4 @@
+import io
 import json
 import os
 import shutil
@@ -8,7 +9,7 @@ import torch
 import torchaudio
 import soundfile
 import wget
-from datasets import load_dataset
+from datasets import Audio, load_dataset
 from tqdm import tqdm
 
 from src.datasets.base_dataset import BaseDataset
@@ -165,6 +166,7 @@ class LibrispeechDataset(BaseDataset):
             streaming=True,
             cache_dir=str(self._hf_cache_dir),
         )
+        dataset = dataset.cast_column("audio", Audio(decode=False))
 
         if self._take is not None:
             dataset = dataset.take(self._take)
@@ -185,15 +187,22 @@ class LibrispeechDataset(BaseDataset):
             audio_path = audio_dir / f"{audio_id}.wav"
 
             if not audio_path.exists():
-                waveform = torch.as_tensor(audio["array"], dtype=torch.float32)
-
+                audio_bytes = audio.get("bytes")
+                if audio_bytes is not None:
+                    data, sampling_rate = soundfile.read(io.BytesIO(audio_bytes))
+                else:
+                    data, sampling_rate = soundfile.read(str(audio["path"]))
+                waveform = torch.as_tensor(data, dtype=torch.float32)
                 if waveform.ndim == 1:
                     waveform = waveform.unsqueeze(0)
+                else:
+                    waveform = waveform.T
+                    waveform = waveform[0:1, :]
 
-                torchaudio.save(
+                soundfile.write(
                     str(audio_path),
-                    waveform,
-                    audio["sampling_rate"],
+                    waveform.squeeze(0).numpy(),
+                    sampling_rate,
                 )
 
             audio_info = soundfile.info(str(audio_path))
