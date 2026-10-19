@@ -107,6 +107,7 @@ saved/
 wandb/
 .cometml-runs/
 outputs/
+_data_for_augmentations/
 
 # editor, os cache directory
 .vscode/
