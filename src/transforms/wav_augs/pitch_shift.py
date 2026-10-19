@@ -3,7 +3,7 @@ import torch
 import torchaudio
 from torch import Tensor, nn
 
-
+# DO NOT USE - хавает очень много памяти. Надо заменить на другую......
 class RandomPitchShift(nn.Module):
     def __init__(
         self,
