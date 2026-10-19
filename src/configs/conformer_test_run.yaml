@@ -21,7 +21,8 @@ loss_function:
 text_encoder:
   _target_: src.text_encoder.CTCTextEncoderWithTokenizer
 trainer:
-  log_step: 50
+  log_step_text: 50
+  log_step_media: 500
   n_epochs: 50
   epoch_len: 100
   device_tensors: ["spectrogram", "text_encoded"] # which tensors should be on device (ex. GPU)

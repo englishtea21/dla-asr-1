@@ -70,7 +70,8 @@ class BaseTrainer:
         self.skip_oom = skip_oom
 
         self.logger = logger
-        self.log_step = config.trainer.get("log_step", 50)
+        self.log_step_text = config.trainer.get("log_step_text", 50)
+        self.log_step_media = config.trainer.get("log_step_media", 500)
 
         self.model = model
         self.criterion = criterion
@@ -241,8 +242,8 @@ class BaseTrainer:
 
             self.train_metrics.update("grad_norm", self._get_grad_norm())
 
-            # log current results
-            if batch_idx % self.log_step == 0:
+            # text logs
+            if batch_idx % self.log_step_text == 0:
                 self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
                 self.logger.debug(
                     "Train Epoch: {} {} Loss: {:.6f}".format(
@@ -253,11 +254,15 @@ class BaseTrainer:
                     "learning rate", self.lr_scheduler.get_last_lr()[0]
                 )
                 self._log_scalars(self.train_metrics)
-                self._log_batch(batch_idx, batch)
                 # we don't want to reset train metrics at the start of every epoch
                 # because we are interested in recent train metrics
                 last_train_metrics = self.train_metrics.result()
                 self.train_metrics.reset()
+
+            # multimedia logs (less frequent to save RAM)
+            if batch_idx % self.log_step_media == 0:
+                self.writer.set_step((epoch - 1) * self.epoch_len + batch_idx)
+                self._log_batch(batch_idx, batch)
             if profiler is not None and batch_idx + 1 >= self.profile_steps:
                 profiler.stop()
                 trace_path = self.checkpoint_dir / "profile_trace.json"
