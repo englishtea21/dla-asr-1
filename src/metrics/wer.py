@@ -41,10 +41,15 @@ class BeamSearchWERMetric(BaseMetric):
     def __call__(self, log_probs, log_probs_length, text, **kwargs):
         wers = []
         predictions = log_probs.cpu() if hasattr(log_probs, "cpu") else log_probs
-        lengths = log_probs_length.detach().cpu().numpy() if hasattr(log_probs_length, "detach") else log_probs_length
+        lengths = (
+            log_probs_length.detach().cpu().numpy()
+            if hasattr(log_probs_length, "detach")
+            else log_probs_length
+        )
         for i in range(predictions.shape[0]):
             pred_text = self.decoder.decode(predictions[i, : int(lengths[i])])
             target_text = self.text_encoder.normalize_text(text[i])
             from src.metrics.utils import calc_wer
+
             wers.append(calc_wer(target_text, pred_text))
         return sum(wers) / len(wers)
