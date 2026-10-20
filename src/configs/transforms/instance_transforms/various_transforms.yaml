@@ -20,11 +20,11 @@ train:
         max_gain_in_db: 10.0
         p: 0.3
       - _target_: src.transforms.wav_augs.AddGaussNoise
-        prob: 0.15
+        prob: 0.3
         snr_db_range: [20.0, 40.0]
       - _target_: src.transforms.wav_augs.ImpulseResponseAugmentation
         sample_rate: 16000
-        decay_range: [0, 20]
+        decay_range: [0, 30]
         prob: 0.3
 inference:
   get_spectrogram:
