@@ -27,4 +27,10 @@ fi
 
 # (мб) чекпоинты LM
 
+# Чекпоинты моделей из hf в saved/
+echo "Скачиваю чекпоинты из hf (kdemyokhin/dla-asr-1)..."
+mkdir -p saved
+HF_TOKEN="${HF_TOKEN:-}" uv run python -c "import os; from huggingface_hub import snapshot_download; snapshot_download('kdemyokhin/dla-asr-1', local_dir='saved', token=os.environ.get('HF_TOKEN') or None)"
+echo "Чекпоинты готовы: saved/"
+
 echo "Все артефакты готовы."
