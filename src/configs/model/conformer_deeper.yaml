@@ -1,0 +1,7 @@
+_target_: src.model.MyConformer
+n_blocks: 10
+mel_banks: 80
+dropout_p: 0.1
+n_heads: 5
+kernel_size_subsample: 5
+kernel_size_conf: 5

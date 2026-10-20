@@ -1,0 +1,37 @@
+train:
+  get_spectrogram:
+    _target_: torch.nn.Sequential
+    _args_:
+      - _target_: torchaudio.transforms.MelSpectrogram
+        sample_rate: 16000
+        n_fft: 512
+        n_mels: 80
+      - _target_: torchaudio.transforms.AmplitudeToDB
+  audio:
+    _target_: torchvision.transforms.v2.Compose
+    transforms:
+      - _target_: src.transforms.wav_augs.RandomPitchShift
+        sample_rate: 16000
+        min_steps: -2
+        max_steps: 2
+        prob: 0.0
+      - _target_: src.transforms.wav_augs.Gain
+        min_gain_in_db: -10.0
+        max_gain_in_db: 10.0
+        p: 0.3
+      - _target_: src.transforms.wav_augs.AddGaussNoise
+        prob: 0.15
+        snr_db_range: [20.0, 40.0]
+      - _target_: src.transforms.wav_augs.ImpulseResponseAugmentation
+        sample_rate: 16000
+        decay_range: [0, 20]
+        prob: 0.3
+inference:
+  get_spectrogram:
+    _target_: torch.nn.Sequential
+    _args_:
+      - _target_: torchaudio.transforms.MelSpectrogram
+        sample_rate: 16000
+        n_fft: 512
+        n_mels: 80
+      - _target_: torchaudio.transforms.AmplitudeToDB
