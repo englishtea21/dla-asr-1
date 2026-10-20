@@ -1,0 +1,7 @@
+test:
+  _target_: src.datasets.LibrispeechDataset
+  part: "test-clean"
+  use_hf: true
+  take: 10000
+  limit: 10000
+  instance_transforms: ${transforms.instance_transforms.inference}

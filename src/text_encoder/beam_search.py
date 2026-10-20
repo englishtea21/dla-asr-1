@@ -35,20 +35,28 @@ class TextEncoderBeamSearch:
                 for v in range(vocab_size):
                     p = float(log_probs[t, v])
                     if v == blank:
-                        cur_pb, cur_pnb = new_beams.get(prefix, [float("-inf"), float("-inf")])
+                        cur_pb, cur_pnb = new_beams.get(
+                            prefix, [float("-inf"), float("-inf")]
+                        )
                         cur_pb = _logaddexp(cur_pb, _logaddexp(pb, pnb) + p)
                         new_beams[prefix] = [cur_pb, cur_pnb]
                     elif prefix and v == prefix[-1]:
-                        cur_pb, cur_pnb = new_beams.get(prefix, [float("-inf"), float("-inf")])
+                        cur_pb, cur_pnb = new_beams.get(
+                            prefix, [float("-inf"), float("-inf")]
+                        )
                         cur_pnb = _logaddexp(cur_pnb, pnb + p)
                         new_beams[prefix] = [cur_pb, cur_pnb]
                         new_prefix = prefix + (v,)
-                        cur_pb2, cur_pnb2 = new_beams.get(new_prefix, [float("-inf"), float("-inf")])
+                        cur_pb2, cur_pnb2 = new_beams.get(
+                            new_prefix, [float("-inf"), float("-inf")]
+                        )
                         cur_pnb2 = _logaddexp(cur_pnb2, pb + p)
                         new_beams[new_prefix] = [cur_pb2, cur_pnb2]
                     else:
                         new_prefix = prefix + (v,)
-                        cur_pb2, cur_pnb2 = new_beams.get(new_prefix, [float("-inf"), float("-inf")])
+                        cur_pb2, cur_pnb2 = new_beams.get(
+                            new_prefix, [float("-inf"), float("-inf")]
+                        )
                         cur_pnb2 = _logaddexp(cur_pnb2, _logaddexp(pb, pnb) + p)
                         new_beams[new_prefix] = [cur_pb2, cur_pnb2]
 
@@ -62,8 +70,12 @@ class TextEncoderBeamSearch:
 
         if not beams:
             return ""
-        best_prefix = max(beams.items(), key=lambda kv: _logaddexp(kv[1][0], kv[1][1]))[0]
-        return "".join(self.text_encoder.ind2char[int(i)] for i in best_prefix if int(i) != 0).strip()
+        best_prefix = max(beams.items(), key=lambda kv: _logaddexp(kv[1][0], kv[1][1]))[
+            0
+        ]
+        return "".join(
+            self.text_encoder.ind2char[int(i)] for i in best_prefix if int(i) != 0
+        ).strip()
 
     def __call__(self, log_probs):
         return self.decode(log_probs)

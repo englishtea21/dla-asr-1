@@ -1,0 +1,8 @@
+defaults:
+  - inference
+  - override metrics: beam
+  - _self_
+inferencer:
+  beam_search: true
+  beam_width: 5
+  save_path: "beam"
