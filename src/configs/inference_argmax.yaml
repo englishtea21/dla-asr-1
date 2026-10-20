@@ -1,0 +1,7 @@
+defaults:
+  - inference
+  - override metrics: basic
+  - _self_
+inferencer:
+  beam_search: false
+  save_path: "argmax"

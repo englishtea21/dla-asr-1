@@ -1,0 +1,8 @@
+train: []
+inference:
+  - _target_: src.metrics.BeamSearchCERMetric
+    name: "CER_(Beam)"
+    beam_width: 5
+  - _target_: src.metrics.BeamSearchWERMetric
+    name: "WER_(Beam)"
+    beam_width: 5
