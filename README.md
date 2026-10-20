@@ -1,4 +1,4 @@
-# ASR (CTC) — HSE DLA homework
+# HSE DLA HW-1 ASR (CTC)
 
 ## Установка
 
@@ -17,19 +17,29 @@ uv sync
 
 ## Артефакты
 
-`download_artefacts.sh` скачивает FLAIR RIR dataset (~110 MB) в `_data_for_augmentations/data_FLAIR.mat`. 
-`ImpulseResponseAugmentation` ожидает файл по этому пути.
+`download_artefacts.sh` скачивает FLAIR RIR dataset (~110 MB) и чекпоинты моделей из Hugging Face (`kdemyokhin/dla-asr-1`) в `saved/`.
 
 ## Запуск
 
 ```bash
-# обучение
-uv run train.py -cn=baseline
+# обучение финальной модели
+uv run train.py -cn=conformer_deeper3_ascii_exp_4 writer.run_name="conformer_deeper3_ascii_exp_4"
 
-# overfit-тест (2 примера)
-uv run train.py -cn=baseline datasets=overfit trainer.epoch_len=1 trainer.n_epochs=50 \
-  trainer.override=True dataloader.batch_size=2 +trainer.log_predictions_on_train=True
+# инференс (argmax / beam search)
+uv run inference.py -cn=inference_argmax model=conformer_deeper3 datasets=demo_librispeech transforms=basic dataloader=example inferencer.from_pretrained=saved/conformer_deeper3_ascii_exp_4/model_best.pth
+uv run inference.py -cn=inference_beam model=conformer_deeper3 datasets=demo_librispeech transforms=basic dataloader=example inferencer.from_pretrained=saved/conformer_deeper3_ascii_exp_4/model_best.pth
 
-# инференс
-uv run inference.py
+# метрики по предсказаниям
+uv run python calc_metrics.py --pred_dir data/saved/argmax/test
 ```
+
+## Demo
+Запускать в Colab
+См. `DEMO.ipynb`.
+
+## Report
+
+Логи: [comet_ml](https://www.comet.com/liskirill37/dla-asr-hw-1)
+
+Interactive Report: [comet_ml]()
+
