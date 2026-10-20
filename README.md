@@ -41,5 +41,5 @@ uv run python calc_metrics.py --pred_dir data/saved/argmax/test
 
 Логи: [comet_ml](https://www.comet.com/liskirill37/dla-asr-hw-1)
 
-Interactive Report: [comet_ml]()
+Interactive Report: [comet_ml](https://www.comet.com/liskirill37/dla-asr-hw-1/reports/x3Kb4L1q1SaV36XKhQoHv5NRG)
 
