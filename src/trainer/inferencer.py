@@ -7,6 +7,7 @@ from src.metrics.tracker import MetricTracker
 from src.metrics.utils import calc_cer, calc_wer
 
 from src.trainer.base_trainer import BaseTrainer
+from src.text_encoder.beam_search import TextEncoderBeamSearch
 
 
 class Inferencer(BaseTrainer):
@@ -66,6 +67,13 @@ class Inferencer(BaseTrainer):
         self.batch_transforms = batch_transforms
 
         self.text_encoder = text_encoder
+        self.beam_search = bool(self.cfg_trainer.get("beam_search", False))
+        self.beam_width = int(self.cfg_trainer.get("beam_width", 5))
+        self._beam_decoder = (
+            TextEncoderBeamSearch(self.text_encoder, beam_width=self.beam_width)
+            if self.beam_search
+            else None
+        )
 
         # define dataloaders
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items()}
@@ -146,8 +154,15 @@ class Inferencer(BaseTrainer):
         rows = []
 
         for i in range(batch_size):
-            pred_ids = log_probs[i, : int(log_probs_length[i])].argmax(dim=-1).tolist()
-            pred_text = self.text_encoder.ctc_decode(pred_ids)
+            if self.beam_search and self._beam_decoder is not None:
+                pred_text = self._beam_decoder.decode(
+                    log_probs[i, : int(log_probs_length[i])]
+                )
+            else:
+                pred_ids = (
+                    log_probs[i, : int(log_probs_length[i])].argmax(dim=-1).tolist()
+                )
+                pred_text = self.text_encoder.ctc_decode(pred_ids)
             target_text = self.text_encoder.normalize_text(texts[i])
 
             rows.append(
