@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import soundfile
+
 from src.datasets.base_dataset import BaseDataset
 
 
@@ -10,6 +12,9 @@ class CustomDirAudioDataset(BaseDataset):
             entry = {}
             if path.suffix in [".mp3", ".wav", ".flac", ".m4a"]:
                 entry["path"] = str(path)
+                info = soundfile.info(str(path))
+                entry["audio_len"] = info.duration
+                entry["text"] = ""
                 if transcription_dir and Path(transcription_dir).exists():
                     transc_path = Path(transcription_dir) / (path.stem + ".txt")
                     if transc_path.exists():
