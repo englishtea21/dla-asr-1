@@ -10,7 +10,7 @@ train:
 
 val:
   _target_: src.datasets.LibrispeechDataset
-  part: "dev-clean"
+  part: "test-other"
   use_hf: true
   take: 100000
   limit: 100000
